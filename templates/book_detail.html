@@ -1,84 +1,135 @@
+
 {% extends "base.html" %}
 
-{% block title %}Book Recommendations | SideQuest{% endblock %}
+{% block title %}{{ book.title }} | SideQuest{% endblock %}
 
 {% block content %}
 
-<body>
+<main>
 
+    <section class="welcome-section">
+        <h2>{{ book.title }}</h2>
+        <p>Find your next great adventure.</p>
+    </section>
 
-        <main>
+    <section class="browse-section">
 
-            <section class="welcome-section">
-                <h2>{{ book.title }}</h2>
+        {% if unavailable %}
 
+            <p role="alert">
+                Book information is temporarily unavailable.
+                Please try again later.
+            </p>
+
+        {% else %}
+
+            {% if cover_id %}
+                <img
+                    class="book-cover"
+                    src="https://covers.openlibrary.org/b/id/{{ cover_id }}-L.jpg"
+                    alt="Cover of {{ book.title }}"
+                    loading="lazy"
+                >
+            {% endif %}
+
+            {% if authors %}
                 <p>
-                    {% if unavailable %}
-                        <p role="alert">
-                            We're sorry! Book information is temporarily unavailable.
-                            Please try again later.
-                        </p>
-                    {% else %}
-                        <p>
-                            Find your next great adventure
-                        </p>
-                    {% endif %}
+                    <strong>Author:</strong>
+                    {{ authors | join(', ') }}
                 </p>
+            {% endif %}
 
+            {% if book.first_publish_date %}
                 <p>
-                    Explore the available information below.
-                    Some book details may not be available through
-                    our book information provider.
+                    <strong>First published:</strong>
+                    {{ book.first_publish_date }}
                 </p>
-            </section>
+            {% endif %}
 
-            <section class="browse-section">
+            {% if description %}
+                <h3>About This Book</h3>
+                <p>{{ description }}</p>
+            {% else %}
+                <p>No description is available for this book yet.</p>
+            {% endif %}
 
-                {% if cover_id %}
-                    <img
-                        class="book-cover"
-                        src="https://covers.openlibrary.org/b/id/{{ cover_id }}-L.jpg"
-                        alt="Cover of {{ book.title }}"
-                        loading="lazy"
+            <hr>
+
+            <h3>Add This Book to a List</h3>
+
+            {% if reading_lists %}
+
+                <form action="{{ url_for('add_book_to_list') }}"
+                      method="POST">
+
+                    <input
+                        type="hidden"
+                        name="work_id"
+                        value="{{ book.key.split('/')[-1] }}"
                     >
-                {% endif %}
 
-                {% if book.authors %}
-                    <p>
-                        <strong>Author information:</strong>
-                        View the author's information through Open Library.
-                    </p>
-                {% endif %}
+                    <input
+                        type="hidden"
+                        name="title"
+                        value="{{ book.title }}"
+                    >
 
-                {% if book.first_publish_date %}
-                    <p>
-                        <strong>First published:</strong>
-                        {{ book.first_publish_date }}
-                    </p>
-                {% endif %}
+                    <input
+                        type="hidden"
+                        name="author"
+                        value="{{ authors | join(', ') }}"
+                    >
 
-                {% if description %}
-                    <h3>About This Book</h3>
-                    <p>{{ description }}</p>
-                {% else %}
-                    <p role="status">
-                        No description is available for this book yet.
-                        You can still explore other book recommendations.
-                    </p>
-                {% endif %}
+                    <input
+                        type="hidden"
+                        name="publication_year"
+                        value="{{ book.first_publish_date[:4] if book.first_publish_date else '' }}"
+                    >
+
+                    <input
+                        type="hidden"
+                        name="cover_id"
+                        value="{{ cover_id or '' }}"
+                    >
+
+                    <label for="list_id">
+                        Choose a reading list:
+                    </label>
+
+                    <select name="list_id" id="list_id" required>
+                        <option value="">Select a list</option>
+
+                        {% for reading_list in reading_lists %}
+                            <option value="{{ reading_list.id }}">
+                                {{ reading_list.name }}
+                            </option>
+                        {% endfor %}
+
+                    </select>
+
+                    <button type="submit">Add to List</button>
+
+                </form>
+
+            {% else %}
 
                 <p>
-                    <a href="{{ url_for('discover') }}">
-                        ← Back to Discover
-                    </a>
+                    No reading lists found.
+                    Visit My Lists to create one.
                 </p>
 
-            </section>
+            {% endif %}
 
-        </main>
+        {% endif %}
 
-        
+        <p>
+            <a href="{{ url_for('discover') }}">
+                ← Back to Discover
+            </a>
+        </p>
 
-    </div>
-</body>
+    </section>
+
+</main>
+
 {% endblock %}

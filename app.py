@@ -4,6 +4,7 @@ from database import get_db_connection
 
 import requests
 
+print("RUNNING APP FILE:", __file__)
 
 
 # Create the Flask application
@@ -363,6 +364,7 @@ def test_database():
 
 # RECOMMENDATIONS PAGE
 
+
 @app.route("/recommendations/<int:game_id>")
 def recommendations(game_id):
     connection = get_db_connection()
@@ -405,7 +407,7 @@ def recommendations(game_id):
     if not search_terms:
         search_terms = [game["title"]]
 
-    # Search Open Library once using all themes
+    # Search Open Library
     books = []
 
     try:
@@ -415,14 +417,30 @@ def recommendations(game_id):
             "https://openlibrary.org/search.json",
             params={
                 "q": search_query,
-                "limit": 12,
+                "limit": 30,
                 "fields": "title,author_name,first_publish_year,isbn,cover_i,key,subject"
             },
             timeout=10
         )
 
         response.raise_for_status()
-        books = response.json().get("docs", [])
+        search_results = response.json().get("docs", [])
+
+        # Keep individual book works and exclude obvious combined titles
+        for book in search_results:
+            title = book.get("title", "")
+            work_key = book.get("key", "")
+
+            if not title or not work_key.startswith("/works/"):
+                continue
+
+            if " / " in title:
+                continue
+
+            books.append(book)
+
+            if len(books) == 12:
+                break
 
     except requests.RequestException as error:
         print("Open Library search error:", error)
@@ -503,8 +521,13 @@ def theme_books(theme):
 
 # INDIVIDUAL BOOK DETAILS PAGE
 
+
+
 @app.route("/book/<work_id>")
 def book_detail(work_id):
+
+    connection = None
+    cursor = None
 
     try:
         response = requests.get(
@@ -523,11 +546,54 @@ def book_detail(work_id):
         covers = book.get("covers", [])
         cover_id = covers[0] if covers else None
 
+        # Get author names
+        authors = []
+
+        for author_entry in book.get("authors", []):
+            author_key = author_entry.get("author", {}).get("key")
+
+            if author_key:
+                try:
+                    author_response = requests.get(
+                        f"https://openlibrary.org{author_key}.json",
+                        timeout=15
+                    )
+                    author_response.raise_for_status()
+
+                    author_data = author_response.json()
+                    author_name = author_data.get("name")
+
+                    if author_name:
+                        authors.append(author_name)
+
+                except Exception as author_error:
+                    print("AUTHOR ERROR:", repr(author_error))
+
+        # Get reading lists
+        connection = get_db_connection()
+
+        if connection is None:
+            raise Exception("Could not connect to database.")
+
+        cursor = connection.cursor(dictionary=True)
+
+        cursor.execute(
+            "SELECT id, name FROM reading_lists ORDER BY name"
+        )
+
+        reading_lists = cursor.fetchall()
+
+        print("BOOK TITLE:", book.get("title"))
+        print("READING LISTS:", reading_lists)
+        print("AUTHORS:", authors)
+
         return render_template(
             "book_detail.html",
             book=book,
             description=description,
             cover_id=cover_id,
+            authors=authors,
+            reading_lists=reading_lists,
             unavailable=False
         )
 
@@ -537,10 +603,20 @@ def book_detail(work_id):
         return render_template(
             "book_detail.html",
             book={"title": "Book Details Unavailable"},
-            description="We're having trouble connecting to Open Library right now. Please try again in a little while.",
+            description="We're having trouble connecting to Open Library.",
             cover_id=None,
+            authors=[],
+            reading_lists=[],
             unavailable=True
         )
+
+    finally:
+        if cursor:
+            cursor.close()
+
+        if connection:
+            connection.close()
+
 
 
 # ADD A BOOK TO A READING LIST
@@ -559,7 +635,7 @@ def add_book_to_list():
     isbn = request.form.get("isbn", "")
 
     # A book must come from either a game or a theme page.
-    if not all([list_id, work_id, title]) or not (game_id or theme):
+    if not all([list_id, work_id, title]):
         return "Missing information needed to save this book.", 400
 
     try:
@@ -651,12 +727,17 @@ def add_book_to_list():
                 duplicate=1 if duplicate else 0
             )
         )
-
+    if game_id:
+        return redirect(
+            url_for(
+                "recommendations",
+                game_id=game_id,
+                   duplicate=1 if duplicate else 0
+                )
+        )
     return redirect(
         url_for(
-            "recommendations",
-            game_id=game_id,
-            duplicate=1 if duplicate else 0
+            "book_detail", work_id=work_id
         )
     )
 
