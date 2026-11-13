@@ -28,8 +28,9 @@ def login():
                 "login.html",
                 error="Incorrect username or password. Please try again!"
             )
+    print("LOGIN TEMPLATE:", app.jinja_env.get_template("login.html").filename)
 
-    return render_template("login.html")
+    return render_template("login.html", login_note="")
 
 
 @app.route("/logout")
@@ -501,6 +502,7 @@ def theme_books(theme):
 
 
 # INDIVIDUAL BOOK DETAILS PAGE
+
 @app.route("/book/<work_id>")
 def book_detail(work_id):
 
@@ -513,16 +515,32 @@ def book_detail(work_id):
         response.raise_for_status()
         book = response.json()
 
-    except requests.RequestException as error:
-        print("Open Library book detail error:", error)
+        description = book.get("description", "")
 
-    return render_template(
-        "book_detail.html",
-        book={"title": "Book Details Unavailable"},
-        description="We're having trouble connecting to Open Library right now. Please try again in a little while.",
-        cover_id=None,
-        unavailable=True
-    )
+        if isinstance(description, dict):
+            description = description.get("value", "")
+
+        covers = book.get("covers", [])
+        cover_id = covers[0] if covers else None
+
+        return render_template(
+            "book_detail.html",
+            book=book,
+            description=description,
+            cover_id=cover_id,
+            unavailable=False
+        )
+
+    except Exception as error:
+        print("BOOK DETAIL ERROR:", repr(error))
+
+        return render_template(
+            "book_detail.html",
+            book={"title": "Book Details Unavailable"},
+            description="We're having trouble connecting to Open Library right now. Please try again in a little while.",
+            cover_id=None,
+            unavailable=True
+        )
 
 
 # ADD A BOOK TO A READING LIST
@@ -675,4 +693,4 @@ def remove_book_from_list(list_id, book_id):
 
 # RUN THE APPLICATION
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False)
