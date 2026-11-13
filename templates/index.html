@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Home | SideQuest{% endblock %}
+
+{% block content %}
+
+    <section class="welcome-section">
+
+        <h2>Rest here weary traveler, for great adventures lie ahead<br>
+        🔥⚔️🔥
+        </h2>
+            <p>
+            Search for a video game and discover books inspired
+            by its themes, characters, and worlds.<br> Or, you can head to the Discover page and explore popular games among users
+            <br>You can also save books to custom lists for later!</p>
+            <p>Find your journey using the search bar below. Safe travels!</p>
+                <form class="game-search"
+                    action="{{ url_for('discover') }}"
+                    method="GET">
+
+                    <input
+                         type="text"
+                        id="game-search"
+                        name="game"
+                        placeholder="Search for a game..."
+                    >
+
+                        <button type="submit" class="nes-btn is-primary">
+                            Embark 🧭
+                        </button>
+                </form>
+
+</section>
+
+<section class="browse-section">
+
+    <h2>Not All Those Who Wander Are Lost 🧙‍♂️</h2>
+
+    <p>
+        Prefer to browse around? Explore some of the themes
+        and genres you can discover through SideQuest.
+    </p>
+
+    <div class="genre-container">
+
+        <a href="{{ url_for('theme_books', theme='Fantasy') }}" class="genre-card">
+            <span aria-hidden="true">🏰</span>
+            <h3>Fantasy</h3>
+            <p>Magic, dragons, and enchanted lands</p>
+        </a>
+
+        <a href="{{ url_for('theme_books', theme='Cozy') }}" class="genre-card">
+            <span aria-hidden="true">🌿</span>
+            <h3>Cozy Games</h3>
+            <p>Tranquil towns, found family and rainy days on the farm</p>
+        </a>
+
+        <a href="{{ url_for('theme_books', theme='Adventure') }}" class="genre-card">
+            <span aria-hidden="true">⚔️</span>
+            <h3>Adventure</h3>
+            <p>Quests, mysteries, and exploration</p>
+        </a>
+
+        <a href="{{ url_for('theme_books', theme='Spooky') }}" class="genre-card">
+            <span aria-hidden="true">👻</span>
+            <h3>Spooky</h3>
+            <p>Haunted places, mysterious creatures,
+                and eerie adventures</p>
+        </a>
+
+        <a href="{{ url_for('theme_books', theme='Science Fiction') }}" class="genre-card">
+            <span aria-hidden="true">👽</span>
+            <h3>Science Fiction</h3>
+            <p>Alternative dimensions, alien worlds,
+                and intergalactic empires</p>
+        </a>
+
+        <a href="{{ url_for('theme_books', theme='Mystery') }}" class="genre-card">
+            <span aria-hidden="true">🕵️</span>
+            <h3>Mystery</h3>
+            <p>Villainous victims, hardboiled detectives and criminal masterminds </p>
+        </a>
+
+    </div>
+
+    <p>
+        <a href="{{ url_for('discover') }}">
+            Or explore by popular games!
+        </a>
+    </p>
+
+</section>
+{% endblock %}

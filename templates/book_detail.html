@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Book Recommendations | SideQuest{% endblock %}
+
+{% block content %}
+
+<body>
+
+
+        <main>
+
+            <section class="welcome-section">
+                <h2>{{ book.title }}</h2>
+
+                <p>
+                    {% if unavailable %}
+                        <p role="alert">
+                            We're sorry! Book information is temporarily unavailable.
+                            Please try again later.
+                        </p>
+                    {% else %}
+                        <p>
+                            Find your next great adventure
+                        </p>
+                    {% endif %}
+                </p>
+
+                <p>
+                    Explore the available information below.
+                    Some book details may not be available through
+                    our book information provider.
+                </p>
+            </section>
+
+            <section class="browse-section">
+
+                {% if cover_id %}
+                    <img
+                        class="book-cover"
+                        src="https://covers.openlibrary.org/b/id/{{ cover_id }}-L.jpg"
+                        alt="Cover of {{ book.title }}"
+                        loading="lazy"
+                    >
+                {% endif %}
+
+                {% if book.authors %}
+                    <p>
+                        <strong>Author information:</strong>
+                        View the author's information through Open Library.
+                    </p>
+                {% endif %}
+
+                {% if book.first_publish_date %}
+                    <p>
+                        <strong>First published:</strong>
+                        {{ book.first_publish_date }}
+                    </p>
+                {% endif %}
+
+                {% if description %}
+                    <h3>About This Book</h3>
+                    <p>{{ description }}</p>
+                {% else %}
+                    <p role="status">
+                        No description is available for this book yet.
+                        You can still explore other book recommendations.
+                    </p>
+                {% endif %}
+
+                <p>
+                    <a href="{{ url_for('discover') }}">
+                        ← Back to Discover
+                    </a>
+                </p>
+
+            </section>
+
+        </main>
+
+        
+
+    </div>
+</body>
+{% endblock %}

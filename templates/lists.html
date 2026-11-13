@@ -1,0 +1,214 @@
+
+
+{% extends "base.html" %}
+
+{% block title %}SideQuest{% endblock %}
+
+{% block content %}
+
+<body>
+        <main>
+
+            <section class="welcome-section">
+                <h2>My Reading Lists ✨</h2>
+                <p>
+                    Create your own collections of books
+                    and keep your next adventures organized.
+                </p>
+            </section>
+
+            
+            <section class="browse-section">
+                <h2>Create a New List 📜</h2>
+
+                <p>
+                    Organize your library however you like! You can create lists for genres, moods-whatever you want!
+                </p>
+                <p>
+                    Don't worry about choosing the perfect name.
+                    You can rename your reading lists whenever you want.
+                </p>
+
+                <form action="{{ url_for('create_list') }}"
+                method="POST"
+                class="game-search">
+
+                    <input
+                    type="text"
+                    name="list_name"
+                    placeholder="Enter a list name..."
+                    aria-label="Reading list name"
+                    maxlength="255"
+                    required
+                    >
+
+                    <button type="submit">
+                        Create List 📜
+                    </button>
+                </form>
+            </section>      
+
+            <section class="browse-section">
+                <h2>🕯️📖 Your Library 📖🕯️</h2>
+                <p>
+                    Looking for a particular collection? Use the search bar
+                    to quickly find a reading list by its name.
+                </p>
+                <input
+                    type="text"
+                    id="listSearch"
+                    placeholder="Search your reading lists..."
+                    aria-label="Search your reading lists"
+                    oninput="filterLists()"
+                >
+
+                <button type="button" onclick="clearListSearch()">
+                    Erase 🪄
+                </button>
+
+                {% if reading_lists %}
+
+                    <div class="genre-container">
+
+                        {% for reading_list in reading_lists %}
+
+                            <div class="game-card reading-list-card"
+                                 data-list-name="{{ reading_list.name|lower }}">
+
+                                <a href="{{ url_for('view_list', list_id=reading_list.id) }}"
+                                   class="book-stack-link">
+
+                                    <div class="book-stack-icon" aria-hidden="true">
+                                        <span class="pixel-book book-one"></span>
+                                        <span class="pixel-book book-two"></span>
+                                        <span class="pixel-book book-three"></span>
+                                    </div>
+
+                                    <h3>{{ reading_list.name }}<br> 📚</h3>
+
+                                    <p class="book-count">
+                                        {{ reading_list.books|length }}
+                                        book{% if reading_list.books|length != 1 %}s{% endif %}
+                                    </p>
+
+                                </a>
+
+                               
+                        <!-- RENAME LIST -->
+                                <form
+                                    action="{{ url_for('rename_list', list_id=reading_list.id) }}"
+                                    method="POST"
+                                    onsubmit="return confirm('Are you sure you want to rename this reading list?');"
+                                >
+
+                                    <input
+                                        type="text"
+                                        name="list_name"
+                                        placeholder="New list name..."
+                                        maxlength="255"
+                                        required
+                                    >
+
+                                    <button type="submit" class="nes-btn is-primary">
+                                        Rename List
+                                    </button>
+
+                                </form>
+
+
+                                <!-- DELETE LIST -->
+                                <form
+                                    action="{{ url_for('delete_list', list_id=reading_list.id) }}"
+                                    method="POST"
+                                    onsubmit="return confirm('Are you sure you want to delete this reading list? This will also remove all books saved in it. This action cannot be undone.');"
+                                >
+
+                                    <button type="submit" class="nes-btn is-primary">
+                                        Delete List
+                                    </button>
+
+                                </form>
+
+                        </div>
+
+                        {% endfor %}
+
+                {% else %}
+
+                    <p>
+                        You haven't created any reading lists yet.
+                        Create your first collection above! 
+                    </p>
+
+                {% endif %}
+
+                <p id="noListResults" style="display: none;">
+                    🌷 Ah, shucks. There's nothing here. Try another search!
+                </p>
+
+            </section>
+
+        </main>
+
+    </div>
+
+    <script>
+        function filterLists() {
+            const searchInput = document.getElementById("listSearch");
+            const searchTerm = searchInput.value.toLowerCase();
+
+            const listCards = document.querySelectorAll(".reading-list-card");
+
+            listCards.forEach(card => {
+                const listName = card.dataset.listName;
+
+                if (listName.includes(searchTerm)) {
+                    card.style.display = "flex";
+                } else {
+                    card.style.display = "none";
+                }
+            });
+
+            const noResults = document.getElementById("noListResults");
+
+            const visibleCards = Array.from(listCards).some(
+                card => card.style.display !== "none"
+            );
+
+            noResults.style.display = visibleCards ? "none" : "block";
+        }
+
+        function sortLists() {
+            const sortOrder = document.getElementById("listSort").value;
+            const container = document.querySelector(".genre-container");
+
+            if (!container) {
+                return;
+            }
+
+            const cards = Array.from(
+                container.querySelectorAll(".reading-list-card")
+            );
+
+            cards.sort((a, b) => {
+                const nameA = a.dataset.listName;
+                const nameB = b.dataset.listName;
+
+                if (sortOrder === "az") {
+                    return nameA.localeCompare(nameB);
+                } else {
+                    return nameB.localeCompare(nameA);
+                }
+            });
+
+            cards.forEach(card => container.appendChild(card));
+        }
+
+        function clearListSearch() {
+            document.getElementById("listSearch").value = "";
+            filterLists();
+        }
+    </script>
+
+</body>
+{% endblock %}

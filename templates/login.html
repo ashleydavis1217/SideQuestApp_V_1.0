@@ -1,0 +1,84 @@
+
+{% extends "base.html" %}
+
+{% block title %}Book Recommendations | SideQuest{% endblock %}
+
+{% block content %}
+<body>
+ 
+        <main class="login-container">
+
+            <h2>Greetings, traveler! 🧚‍♀️</h2>
+
+            <p>What brings you to these lands?</p>
+
+            <p>
+                Log in to discover books inspired by your favorite
+                games and create your own reading lists.
+            </p>
+
+            {% if error %}
+                <p class="login-error" role="alert">
+                    {{ error }}
+                </p>
+            {% endif %}
+
+            <form action="{{ url_for('login') }}" method="POST">
+
+                <label for="username">Username</label>
+
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    placeholder="Enter your username"
+                    autocomplete="username"
+                    required
+                >
+
+                <label for="password">Password</label>
+
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Enter your password"
+                    autocomplete="current-password"
+                    required
+                >
+
+                <label>
+                    <input
+                        type="checkbox"
+                        id="show-password"
+                        onchange="togglePassword()"
+                    >
+                    Show password
+                </label>
+
+                <button type="submit">Onward!</button>
+
+            </form>
+
+            <p class="login-note">
+                This is a demonstration website.
+            </p>
+
+        </main>
+
+    </div>
+
+    <script>
+        function togglePassword() {
+            const password = document.getElementById("password");
+
+            if (password.type === "password") {
+                password.type = "text";
+            } else {
+                password.type = "password";
+            }
+        }
+    </script>
+
+</body>
+{% endblock %}

@@ -1,0 +1,66 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}SideQuest{% endblock %}</title>
+
+    <!-- Pixel font -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- NES.css -->
+    <link
+        href="https://unpkg.com/nes.css@2.3.0/css/nes.min.css"
+        rel="stylesheet"
+    >
+
+    <!-- SideQuest styles -->
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+    <div class="main-container">
+
+        <!-- HEADER -->
+        <header class="site-header">
+            <a href="{{ url_for('home') }}">
+                <img
+                    src="{{ url_for('static', filename='images/logo.png') }}"
+                    alt="SideQuest"
+                    class="site-logo"
+                >
+            </a>
+
+            <p>Find your next great adventure.</p>
+        </header>
+
+        <!-- NAVIGATION -->
+        {% if request.endpoint != 'login' %}
+        <nav class="navbar" aria-label="Main navigation">
+            <a href="{{ url_for('home') }}">Home</a>
+            <a href="{{ url_for('discover') }}">Discover</a>
+            <a href="{{ url_for('lists') }}">My Lists</a>
+            <a href="{{ url_for('contact') }}">Contact Us</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </nav>
+        {% endif %}
+
+        <!-- PAGE CONTENT -->
+        <main>
+            {% block content %}{% endblock %}
+        </main>
+
+        <!-- FOOTER -->
+        <footer>
+            <p>Made with 💜 for curious adventurers. &#169; Ashley Davis 2026 </p>
+        </footer>
+
+    </div>
+</body>
+</html>

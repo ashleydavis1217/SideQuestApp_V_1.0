@@ -1,0 +1,115 @@
+
+{% extends "base.html" %}
+
+{% block title %}Discover | SideQuest{% endblock %}
+
+{% block content %}
+
+<section class="welcome-section">
+
+    <h2></h2>
+    <h3>
+
+    <p>
+        Search for your favorite games and discover
+        books inspired by similar worlds, themes, and adventures.
+    </p>
+
+    <p>
+        You can also create lists and save books for later!
+    </p>
+
+    <form class="game-search"
+          action="{{ url_for('discover') }}"
+          method="GET">
+
+        <input
+            type="text"
+            id="game-search"
+            name="game"
+            placeholder="Enter a game title..."
+            value="{{ search_term }}"
+        >
+
+        <button type="submit" class="nes-btn is-primary">
+            Embark!
+        </button>
+
+        {% if search_term %}
+            <a href="{{ url_for('discover') }}">
+                Clear Search
+            </a>
+        {% endif %}
+
+    </form>
+
+</section>
+
+<section class="browse-section">
+
+    {% if search_term %}
+        <h2>Search Results for "{{ search_term }}"</h2>
+    {% else %}
+        <h2>Explore Popular Games</h2>
+    {% endif %}
+
+    <p>
+        Select a game to see books with similar themes
+        and discover your next reading adventure.
+    </p>
+
+    {% if games %}
+
+        <div class="genre-container">
+
+            {% for game in games %}
+
+                <div class="game-card">
+
+                    <h3>{{ game.title }}</h3>
+
+                    <p class="game-genre">
+                        {{ game.genre }}
+                    </p>
+
+                    <p>{{ game.description }}</p>
+
+                    <a href="{{ url_for('recommendations', game_id=game.id) }}">
+                        Discover Related Books ✨
+                    </a>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <div class="empty-list">
+            <h3>Oh no! There's nothing here!</h3>
+
+            <p>
+                We couldn't find a game matching
+                "{{ search_term }}".
+            </p>
+
+            <p>
+                Check the spelling or try another
+                game from our collection.
+            </p>
+
+            <a href="{{ url_for('discover') }}">
+                View All Games
+            </a>
+        </div>
+
+    {% endif %}
+
+</section>
+
+<p>
+    <a href="{{ url_for('home') }}">← Back to Home</a>
+</p>
+
+{% endblock %}

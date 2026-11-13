@@ -1,0 +1,93 @@
+
+{% extends "base.html" %}
+
+{% block title %}Book Recommendations | SideQuest{% endblock %}
+
+{% block content %}
+
+<body>
+        <div class="main-container">
+        
+
+        <main>
+            {% if request.args.get('removed') == '1' %}
+                <div class="success-message" role="status">
+                    <p> 🪄 Book removed from your reading list</p>
+                </div>  
+            {% endif %}
+            <section class="welcome-section">
+                <h2>📚 {{ reading_list.name }}</h2>
+                <p>Your personal collection of adventures and stories.</p>
+            </section>
+
+            <section class="browse-section">
+                <h2>Books in This Collection ✨</h2>
+
+                <p class="book-count">
+                    {{ books|length }}
+                    book{% if books|length != 1 %}s{% endif %}
+                    in this collection
+                </p>
+
+                {% if books %}
+                    <div class="genre-container">
+
+                        {% for book in books %}
+                            <div class="game-card">
+
+                                {% if book.cover_url %}
+                                    <img
+                                        src="{{ book.cover_url }}"
+                                        alt="Cover of {{ book.title }}"
+                                        loading="lazy"
+                                    >
+                                {% endif %}
+
+                                <h3>{{ book.title }}</h3>
+
+                                {% if book.author %}
+                                    <p>By {{ book.author }}</p>
+                                {% endif %}
+
+                                {% if book.publication_year %}
+                                    <p>Published: {{ book.publication_year }}</p>
+                                {% endif %}
+
+                                {% if book.isbn_13 %}
+                                    <p>ISBN: {{ book.isbn_13 }}</p>
+                                {% elif book.isbn_10 %}
+                                    <p>ISBN: {{ book.isbn_10 }}</p>
+                                {% endif %}
+
+                                {% if book.open_library_id %}
+                                    <a href="{{ url_for('book_detail', work_id=book.open_library_id.split('/')[-1]) }}">
+                                        View Book Details ✨
+                                    </a>
+                                {% endif %}
+
+                                <form
+                                    action="{{ url_for('remove_book_from_list', list_id=reading_list.id, book_id=book.id) }}"
+                                    method="POST"
+                                    onsubmit="return confirm('Are you sure you want to remove this book from this reading list? You will need to save it again to add it back.');"
+                                >
+                                    <button type="submit">Remove Book 🗑️</button>
+                                </form>
+
+                            </div>
+                        {% endfor %}
+
+                    </div>
+                    {% else %}
+                        <div class="empty-list">
+                            <h3>🌷 Your adventure starts here!</h3>
+                            <p>This collection doesn't have any books yet.</p>
+                            <p>Explore SideQuest and find a story to add to your collection.</p>
+                                <a href="/discover">Discover Books ✨</a>
+                        </div>
+                    {% endif %}
+
+            </section>
+        </main>
+    <a href="{{ url_for('lists') }}"> ← Back to My List</a>
+</body>
+{% endblock %}

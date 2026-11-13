@@ -1,0 +1,96 @@
+
+{% extends "base.html" %}
+
+{% block title %}Book Recommendations | SideQuest{% endblock %}
+
+{% block content %}
+
+<body>
+    <div class="main-container">
+
+        <main>
+
+            <section class="welcome-section">
+                <h2>Need help? </h2>
+                <p>
+                    Have a question, suggestion, or encountered a problem?
+                    We'd love to hear from you!
+                </p>
+            </section>
+
+            <section class="browse-section">
+                {% if success %}
+                    <div class="success-message">
+                        <p>🦉 Your message has been sent!</p>
+                        <p>Thank you for reaching out to SideQuest.</p>
+                    </div>
+                {% endif %}
+
+            <div class="game-card contact-card">
+
+                <div class="game-card contact-card">
+
+                    <h2>Send Us a Message</h2>
+
+                    <p>
+                        Fill out the form below and let us know
+                        how we can help.
+                    </p>
+
+                    <form action="{{ url_for('contact') }}" method="POST">
+
+                        <label for="name">Your Name</label>
+                        <input
+                            type="text"
+                            id="name"
+                            name="name"
+                            placeholder="Enter your name"
+                            required
+                        >
+
+                        <label for="email">Email Address</label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="Enter your email"
+                            required
+                        >
+
+                        <label for="subject">Subject</label>
+                        <input
+                            type="text"
+                            id="subject"
+                            name="subject"
+                            placeholder="What is your message about?"
+                            required
+                        >
+
+                        <label for="message">Your Message</label>
+                        <textarea
+                            id="message"
+                            name="message"
+                            rows="6"
+                            placeholder="Write your message here..."
+                            required
+                        ></textarea>
+
+                        <button type="submit">
+                            Send Message 📜
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </section>
+
+            <p>
+                <a href="{{ url_for('home') }}">← Back to Home</a>
+            </p>
+
+        </main>
+
+    </div>
+</body>
+{% endblock %}
